@@ -40,18 +40,21 @@ def map_code_to_text(code):
     return weather_codes.get(code, 'Unknown')
 
 
-def make_pretty_table(data):
+def make_readable(data):
     df = pd.DataFrame(data=data)
     df['Время'] = df['Время'].dt.tz_convert('Europe/Moscow').dt.strftime('%H:%M')
     df['Температура'] = df['Температура'].astype(int).apply(
         lambda temp: f'{temp} °C')
     df['Погода'] = df['Погода'].map(map_code_to_text)
-    table = df.to_html(
+    return df
+
+
+def table_to_html(df):
+    return df.to_html(
         classes='table table-bordered',
         index=False,
         header=True,
         justify='left')
-    return table
 
 
 def numpy_data(hourly):
@@ -87,9 +90,13 @@ def get_weather(сity):
         "hourly": ["temperature_2m", "weather_code"],
         "forecast_hours": 6
     }
-    responses = openmeteo.weather_api(url, params=params)
-    response = responses[0]
-    hourly = response.Hourly()
-    hourly_data = numpy_data(hourly)
-    table = make_pretty_table(hourly_data)
-    return table
+    try:
+        responses = openmeteo.weather_api(url, params=params)
+    except Exception:
+        raise Exception('Сбой при запросе к эндпоинту')
+    else:
+        response = responses[0]
+        hourly = response.Hourly()
+        hourly_data = numpy_data(hourly)
+        table = table_to_html(make_readable(hourly_data))
+        return table

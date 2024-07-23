@@ -9,7 +9,6 @@ def index(request):
         form = CityForm(request.POST or None)
         if form.is_valid():
             city = form.cleaned_data["city_name"]
-            print(city)
             table = get_weather(city)
             context = {
                 'city': city,
