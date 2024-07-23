@@ -1,9 +1,8 @@
 import openmeteo_requests
-import requests_cache
 import pandas as pd
-from retry_requests import retry
+import requests_cache
 from geopy.geocoders import Nominatim
-
+from retry_requests import retry
 
 weather_codes = {
     0: 'Чистое небо',
@@ -44,7 +43,8 @@ def map_code_to_text(code):
 def make_pretty_table(data):
     df = pd.DataFrame(data=data)
     df['Время'] = df['Время'].dt.tz_convert('Europe/Moscow').dt.strftime('%H:%M')
-    df['Температура'] = df['Температура'].astype(int)
+    df['Температура'] = df['Температура'].astype(int).apply(
+        lambda temp: f'{temp} °C')
     df['Погода'] = df['Погода'].map(map_code_to_text)
     table = df.to_html(
         classes='table table-bordered',

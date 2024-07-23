@@ -1,4 +1,5 @@
 from django.shortcuts import render
+
 from .forms import CityForm
 from .utils import get_weather
 
